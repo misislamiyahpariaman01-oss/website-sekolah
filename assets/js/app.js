@@ -25,6 +25,8 @@ const helpers = {
   },
 };
 
+const API_BASE = window.location.origin === 'null' ? 'http://localhost:4000' : window.location.origin;
+
 const pageMap = {
   dashboard: 'Dashboard',
   penerimaan: 'Pendaftaran Siswa',
@@ -98,6 +100,12 @@ const elements = {
   exportStudentCsv: document.getElementById('exportStudentCsv'),
   exportStudentPdf: document.getElementById('exportStudentPdf'),
   backupData: document.getElementById('backupData'),
+  loginOverlay: document.getElementById('loginOverlay'),
+  loginForm: document.getElementById('loginForm'),
+  loginEmail: document.getElementById('loginEmail'),
+  loginPassword: document.getElementById('loginPassword'),
+  darkModeToggle: document.getElementById('darkModeToggle'),
+  logoutButton: document.getElementById('logoutButton'),
 };
 
 const stats = {
@@ -145,6 +153,116 @@ function initializeData() {
     { id: 'p1', number: 'PAY-001', studentName: 'Siti Nur A', month: 'Januari', amount: 250000, status: 'Lunas' },
     { id: 'p2', number: 'PAY-002', studentName: 'Ahmad Ridho', month: 'Februari', amount: 250000, status: 'Belum Lunas' },
   ];
+}
+
+
+async function apiRequest(path, method = 'GET', body) {
+  const token = sessionStorage.getItem('token');
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(`${API_BASE}/api${path}`, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ message: 'Gagal koneksi' }));
+    if (response.status === 401 || response.status === 403) {
+      clearAuth();
+      requireLogin();
+    }
+    throw new Error(error.message || 'Request gagal');
+  }
+  return response.json();
+}
+
+function setLoggedInUser(user) {
+  document.querySelector('.profile').textContent = user.name;
+  elements.userRole.textContent = user.role;
+}
+
+function clearAuth() {
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
+  document.querySelector('.profile').textContent = 'Guest';
+  elements.userRole.textContent = 'Pengunjung';
+  state.role = 'operator';
+  applyRole();
+}
+
+function getSavedUser() {
+  return JSON.parse(sessionStorage.getItem('user') || 'null');
+}
+
+function initializeAuth() {
+  const token = sessionStorage.getItem('token');
+  const user = getSavedUser();
+  if (token && user) {
+    setLoggedInUser(user);
+    state.role = user.role;
+    applyRole();
+    return true;
+  }
+  clearAuth();
+  requireLogin();
+  return false;
+}
+
+function requireLogin() {
+  elements.loginOverlay.classList.remove('hidden');
+}
+
+function hideLogin() {
+  elements.loginOverlay.classList.add('hidden');
+}
+
+function applyDarkMode(enabled) {
+  if (enabled) document.documentElement.classList.add('dark-mode');
+  else document.documentElement.classList.remove('dark-mode');
+  localStorage.setItem('darkModeEnabled', enabled ? '1' : '0');
+  elements.darkModeToggle.textContent = enabled ? 'Light Mode' : 'Dark Mode';
+}
+
+function initializeTheme() {
+  const enabled = localStorage.getItem('darkModeEnabled') === '1';
+  applyDarkMode(enabled);
+}
+
+async function reloadDataFromApi() {
+  try {
+    const [students, teachers, classes, subjects, applicants, scores, attendances, payments] = await Promise.all([
+      apiRequest('/siswa'),
+      apiRequest('/guru'),
+      apiRequest('/kelas'),
+      apiRequest('/mapel'),
+      apiRequest('/pendaftaran'),
+      apiRequest('/nilai'),
+      apiRequest('/absensi'),
+      apiRequest('/pembayaran'),
+    ]);
+    state.students = students.map((item) => ({ id: item.id, nis: item.nis, nisn: item.nisn, name: item.nama, kelas: item.kelas?.nama_kelas || 'N/A', jurusan: item.jurusan || '-', address: item.alamat || '-', phone: item.nomor_hp || '-', status: item.status || 'Aktif' }));
+    state.teachers = teachers.map((item) => ({ id: item.id, nip: item.nip, name: item.nama, subject: item.mata_pelajaran || '-', email: item.email || '-', phone: item.phone || '-', status: item.status || 'Aktif' }));
+    state.classes = classes.map((item) => ({ id: item.id, code: item.kode_kelas, name: item.nama_kelas, wali: item.wali_kelas || '-', capacity: item.kapasitas || 0 }));
+    state.subjects = subjects.map((item) => ({ id: item.id, code: item.kode_mapel, name: item.nama_mapel, kkm: item.kkm || 0 }));
+    state.applicants = applicants.map((item) => ({ id: item.id, regNo: item.no_pendaftaran, name: item.siswa?.nama || '-', targetClass: item.siswa?.kelas?.nama_kelas || '-', status: 'Terdaftar' }));
+    state.scores = scores.map((item) => ({ id: item.id, studentId: item.siswa_id, subjectId: item.mapel_id, kelas: item.siswa?.kelas?.nama_kelas || '-', semester: item.semester || '-', year: item.year || '-', task: item.tugas, uts: item.uts, uas: item.uas, final: item.nilai_akhir, category: helpers.category(item.nilai_akhir) }));
+    state.attendance = attendances.map((item) => ({ date: item.tanggal, studentId: item.siswa_id, status: item.status }));
+    state.payments = payments.map((item) => ({ id: item.id, number: `PAY-${item.id.toString().padStart(3, '0')}`, studentName: item.siswa?.nama || '-', month: item.bulan, amount: item.nominal, status: item.status }));
+    renderApplicants();
+    renderStudents();
+    renderTeachers();
+    renderClasses();
+    renderSubjects();
+    renderScores();
+    renderReport();
+    renderAttendance();
+    renderPayments();
+    refreshSelectOptions();
+    updateDashboard();
+  } catch (err) {
+    console.error(err);
+    alert('Tidak dapat memuat data API. Pastikan backend berjalan dan login berhasil.');
+  }
 }
 
 function setActivePage(pageKey) {
@@ -323,6 +441,30 @@ function bindEvents() {
 
   elements.menuToggle.addEventListener('click', () => elements.sidebar.classList.toggle('open'));
 
+  elements.loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    try {
+      const email = elements.loginEmail.value.trim();
+      const password = elements.loginPassword.value.trim();
+      const data = await apiRequest('/auth/login', 'POST', { email, password });
+      sessionStorage.setItem('token', data.token);
+      sessionStorage.setItem('user', JSON.stringify(data.user));
+      setLoggedInUser(data.user);
+      state.role = data.user.role;
+      applyRole();
+      hideLogin();
+      await reloadDataFromApi();
+      setActivePage('dashboard');
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  elements.logoutButton.addEventListener('click', () => {
+    clearAuth();
+    requireLogin();
+  });
+
   elements.userRole.addEventListener('change', (event) => {
     state.role = event.target.value;
     applyRole();
@@ -341,12 +483,23 @@ function bindEvents() {
       targetClass: document.getElementById('ppdbTargetClass').value,
       status: 'Terdaftar',
     };
-    state.applicants.push(newApplicant);
-    renderApplicants(elements.searchApplicant.value);
-    updateDashboard();
-    elements.ppdbForm.reset();
-    generateRegistrationNumber();
-    alert('Pendaftar berhasil ditambahkan.');
+    try {
+      const targetClass = state.classes.find((item) => item.name.toLowerCase().startsWith(newApplicant.targetClass.toLowerCase())) || state.classes[0];
+      const siswaData = {
+        nis: document.getElementById('ppdbNisn').value || helpers.randomId('nis'),
+        nisn: document.getElementById('ppdbNisn').value,
+        nama: newApplicant.name,
+        kelas_id: targetClass?.id,
+      };
+      const createdStudent = await apiRequest('/siswa', 'POST', siswaData);
+      await apiRequest('/pendaftaran', 'POST', { no_pendaftaran: newApplicant.regNo, siswa_id: createdStudent.id });
+      await reloadDataFromApi();
+      elements.ppdbForm.reset();
+      generateRegistrationNumber();
+      alert('Pendaftar berhasil ditambahkan.');
+    } catch (err) {
+      alert(err.message);
+    }
   });
 
   document.getElementById('resetPpdb').addEventListener('click', () => {
@@ -696,7 +849,13 @@ function generateRegistrationNumber() {
 
 window.addEventListener('DOMContentLoaded', () => {
   bindEvents();
-  setInitialState();
+  initializeTheme();
+  const loggedIn = initializeAuth();
+  if (loggedIn) {
+    reloadDataFromApi();
+  } else {
+    setInitialState();
+  }
   setActivePage('dashboard');
 });
 

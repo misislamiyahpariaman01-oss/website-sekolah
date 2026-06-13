@@ -148,6 +148,113 @@ button {
   flex-wrap: wrap;
 }
 
+.dark-mode {
+  --bg: #0b1120;
+  --surface: #111827;
+  --surface-muted: #1f2937;
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
+  --accent: #38bdf8;
+  --accent-strong: #60a5fa;
+  --border: #334155;
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
+}
+
+.dark-mode body {
+  background: linear-gradient(180deg, #020617 0%, #111827 100%);
+}
+
+.dark-mode .sidebar {
+  background: #111827;
+}
+
+.dark-mode .menu-item,
+.dark-mode .menu-group,
+.dark-mode .menu-title {
+  color: #cbd5e1;
+}
+
+.dark-mode .menu-item.active,
+.dark-mode .menu-item:hover {
+  background: rgba(56, 189, 248, 0.18);
+  color: #ffffff;
+}
+
+.dark-mode .card,
+.dark-mode .report-card,
+.dark-mode .form-card,
+.dark-mode .report-summary-card,
+.dark-mode .modal-content,
+.dark-mode .login-panel {
+  background: #111827;
+  border-color: #334155;
+}
+
+.dark-mode th,
+.dark-mode td {
+  border-color: #334155;
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+  background: #1f2937;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark-mode .button-secondary,
+.dark-mode .button-muted {
+  background: #1f2937;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+.dark-mode .button-primary {
+  background: #0ea5e9;
+}
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.82);
+  display: grid;
+  place-items: center;
+  z-index: 200;
+}
+
+.login-panel {
+  width: min(380px, 90%);
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.login-panel h2 {
+  margin-bottom: 20px;
+}
+
+.login-panel label {
+  display: block;
+  text-align: left;
+  margin-bottom: 16px;
+}
+
+.login-panel input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface-muted);
+  color: var(--text);
+}
+
+.login-panel p {
+  margin-top: 18px;
+  color: var(--text-muted);
+}
+
 .role-card {
   display: flex;
   align-items: center;

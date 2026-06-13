@@ -67,14 +67,10 @@
           </div>
           <div class="topbar-right">
             <div class="role-card">
-              <label for="userRole">Hak Akses:</label>
-              <select id="userRole">
-                <option value="admin">Admin</option>
-                <option value="operator">Operator</option>
-                <option value="guru">Guru</option>
-                <option value="kepala">Kepala Sekolah</option>
-              </select>
+              <span id="userRole">Admin</span>
             </div>
+            <button class="button button-muted" id="darkModeToggle">Dark Mode</button>
+            <button class="button button-secondary" id="logoutButton">Logout</button>
             <div class="profile">Administrator</div>
           </div>
         </header>
@@ -798,6 +794,24 @@
           <button class="modal-close" id="closeModal">×</button>
         </div>
         <form id="modalEntityForm"></form>
+      </div>
+    </div>
+
+    <div class="login-overlay hidden" id="loginOverlay">
+      <div class="login-panel">
+        <h2>Login Sistem Sekolah</h2>
+        <form id="loginForm">
+          <label>
+            Email
+            <input type="email" id="loginEmail" required />
+          </label>
+          <label>
+            Password
+            <input type="password" id="loginPassword" required />
+          </label>
+          <button type="submit" class="button button-primary">Masuk</button>
+        </form>
+        <p>Gunakan <strong>admin@sekolah.test</strong> / <strong>admin123</strong></p>
       </div>
     </div>
 

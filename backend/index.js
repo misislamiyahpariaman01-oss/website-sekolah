@@ -1,7 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import bcrypt from 'bcryptjs';
 import { sequelize } from './models/index.js';
+import { User } from './models/index.js';
+import authMiddleware from './middleware/auth.js';
 import authRoutes from './routes/auth.js';
 import siswaRoutes from './routes/siswa.js';
 import guruRoutes from './routes/guru.js';
@@ -20,6 +23,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);
+app.use('/api', authMiddleware);
 app.use('/api/users', usersRoutes);
 app.use('/api/siswa', siswaRoutes);
 app.use('/api/guru', guruRoutes);
@@ -39,7 +43,19 @@ sequelize.authenticate()
     console.log('Koneksi database berhasil');
     return sequelize.sync();
   })
-  .then(() => {
+  .then(async () => {
+    const adminEmail = 'admin@sekolah.test';
+    const admin = await User.findOne({ where: { email: adminEmail } });
+    if (!admin) {
+      const hashedPassword = await bcrypt.hash('admin123', 10);
+      await User.create({
+        name: 'Administrator',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'admin',
+      });
+      console.log(`Default admin dibuat: ${adminEmail} / admin123`);
+    }
     app.listen(port, () => console.log(`Server berjalan di port ${port}`));
   })
   .catch((err) => {
