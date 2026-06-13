@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Sekolah - Dashboard Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="assets/css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <div class="brand-icon">SI</div>
+          <div>
+            <h1>Aplikasi Sekolah</h1>
+            <p>Admin Dashboard</p>
+          </div>
+        </div>
+
+        <nav class="menu">
+          <div class="menu-title">Menu Utama</div>
+          <a href="#dashboard" class="menu-item active" data-page="dashboard">
+            Dashboard
+          </a>
+          <div class="menu-group">Penerimaan Siswa</div>
+          <a href="#penerimaan" class="menu-item" data-page="penerimaan">Pendaftaran Siswa</a>
+          <a href="#pendaftar" class="menu-item" data-page="pendaftar">Data Pendaftar</a>
+          <a href="#verifikasi" class="menu-item" data-page="verifikasi">Verifikasi Berkas</a>
+          <a href="#status-penerimaan" class="menu-item" data-page="status-penerimaan">Status Penerimaan</a>
+          <div class="menu-group">Nilai</div>
+          <a href="#input-nilai" class="menu-item" data-page="input-nilai">Input Nilai</a>
+          <a href="#data-nilai" class="menu-item" data-page="data-nilai">Data Nilai</a>
+          <a href="#rapor" class="menu-item" data-page="rapor">Cetak Rapor</a>
+          <a href="#rekap-nilai" class="menu-item" data-page="rekap-nilai">Rekap Nilai</a>
+          <div class="menu-group">Laporan</div>
+          <a href="#laporan-penerimaan" class="menu-item" data-page="laporan-penerimaan">Laporan Penerimaan</a>
+          <a href="#laporan-nilai" class="menu-item" data-page="laporan-nilai">Laporan Nilai</a>
+          <a href="#laporan-siswa" class="menu-item" data-page="laporan-siswa">Laporan Siswa</a>
+          <a href="#laporan-guru" class="menu-item" data-page="laporan-guru">Laporan Guru</a>
+          <div class="menu-group">Master Data</div>
+          <a href="#data-siswa" class="menu-item" data-page="data-siswa">Data Siswa</a>
+          <a href="#data-guru" class="menu-item" data-page="data-guru">Data Guru</a>
+          <a href="#data-kelas" class="menu-item" data-page="data-kelas">Data Kelas</a>
+          <a href="#data-mapel" class="menu-item" data-page="data-mapel">Data Mata Pelajaran</a>
+          <a href="#data-tahun" class="menu-item" data-page="data-tahun">Data Tahun Ajaran</a>
+          <div class="menu-group">Pengaturan</div>
+          <a href="#profil" class="menu-item" data-page="profil">Profil Sekolah</a>
+          <a href="#logo" class="menu-item" data-page="logo">Logo Sekolah</a>
+          <a href="#user-management" class="menu-item" data-page="user-management">User Management</a>
+          <a href="#backup" class="menu-item" data-page="backup">Backup Database</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button class="sidebar-toggle" id="menuToggle">☰</button>
+            <h2 id="pageTitle">Dashboard</h2>
+          </div>
+          <div class="topbar-right">
+            <div class="role-card">
+              <label for="userRole">Hak Akses:</label>
+              <select id="userRole">
+                <option value="admin">Admin</option>
+                <option value="operator">Operator</option>
+                <option value="guru">Guru</option>
+                <option value="kepala">Kepala Sekolah</option>
+              </select>
+            </div>
+            <div class="profile">Administrator</div>
+          </div>
+        </header>
+
+        <section class="page active" id="dashboard">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Dashboard Utama</span>
+              <h3>Ringkasan administrasi sekolah</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-muted" id="refreshDashboard">Refresh Data</button>
+            </div>
+          </div>
+
+          <div class="grid cards-grid">
+            <article class="card stat-card">
+              <p>Total Siswa</p>
+              <h2 id="statStudents">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Total Guru</p>
+              <h2 id="statTeachers">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Total Kelas</p>
+              <h2 id="statClasses">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Total Mata Pelajaran</p>
+              <h2 id="statSubjects">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Total Pendaftar Baru</p>
+              <h2 id="statApplicants">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Rata-rata Nilai</p>
+              <h2 id="statAverage">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Siswa Lulus</p>
+              <h2 id="statGraduate">0</h2>
+            </article>
+            <article class="card stat-card">
+              <p>Siswa Aktif</p>
+              <h2 id="statActive">0</h2>
+            </article>
+          </div>
+
+          <div class="grid charts-grid">
+            <article class="card chart-card">
+              <div class="card-title">Grafik Jumlah Siswa</div>
+              <canvas id="chartStudents"></canvas>
+            </article>
+            <article class="card chart-card">
+              <div class="card-title">Grafik Nilai</div>
+              <canvas id="chartScores"></canvas>
+            </article>
+            <article class="card chart-card">
+              <div class="card-title">Grafik Pendaftaran</div>
+              <canvas id="chartApplications"></canvas>
+            </article>
+          </div>
+
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Cepat</span>
+              <h3>Akses cepat ke fitur penting</h3>
+            </div>
+          </div>
+          <div class="grid cards-grid">
+            <article class="card action-card" data-page="penerimaan">
+              <p class="action-title">PPDB</p>
+              <span>Daftar peserta baru dan kelola pendaftar.</span>
+            </article>
+            <article class="card action-card" data-page="input-nilai">
+              <p class="action-title">Input Nilai</p>
+              <span>Masukkan nilai siswa secara cepat.</span>
+            </article>
+            <article class="card action-card" data-page="rapor">
+              <p class="action-title">Rapor</p>
+              <span>Generate rapor otomatis.</span>
+            </article>
+            <article class="card action-card" data-page="absensi">
+              <p class="action-title">Absensi</p>
+              <span>Kelola kehadiran harian dan laporan.</span>
+            </article>
+            <article class="card action-card" data-page="keuangan">
+              <p class="action-title">Keuangan</p>
+              <span>Kelola pembayaran SPP dan kwitansi.</span>
+            </article>
+          </div>
+        </section>
+
+        <section class="page hidden" id="penerimaan">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul PPDB</span>
+              <h3>Form Pendaftaran Siswa Baru</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <form id="ppdbForm">
+              <div class="form-grid-two">
+                <label>
+                  Nomor Pendaftaran
+                  <input type="text" id="ppdbNo" readonly />
+                </label>
+                <label>
+                  NISN
+                  <input type="text" id="ppdbNisn" required />
+                </label>
+                <label>
+                  Nama Lengkap
+                  <input type="text" id="ppdbName" required />
+                </label>
+                <label>
+                  Tempat Lahir
+                  <input type="text" id="ppdbBirthPlace" required />
+                </label>
+                <label>
+                  Tanggal Lahir
+                  <input type="date" id="ppdbBirthDate" required />
+                </label>
+                <label>
+                  Jenis Kelamin
+                  <select id="ppdbGender" required>
+                    <option value="">Pilih</option>
+                    <option value="Laki-laki">Laki-laki</option>
+                    <option value="Perempuan">Perempuan</option>
+                  </select>
+                </label>
+                <label>
+                  Agama
+                  <select id="ppdbReligion" required>
+                    <option value="">Pilih</option>
+                    <option>Islam</option>
+                    <option>Kristen</option>
+                    <option>Katolik</option>
+                    <option>Hindu</option>
+                    <option>Budha</option>
+                    <option>Konghucu</option>
+                  </select>
+                </label>
+                <label>
+                  Alamat
+                  <textarea id="ppdbAddress" rows="2" required></textarea>
+                </label>
+                <label>
+                  Nama Ayah
+                  <input type="text" id="ppdbFather" required />
+                </label>
+                <label>
+                  Nama Ibu
+                  <input type="text" id="ppdbMother" required />
+                </label>
+                <label>
+                  Nomor HP Orang Tua
+                  <input type="text" id="ppdbPhone" required />
+                </label>
+                <label>
+                  Asal Sekolah
+                  <input type="text" id="ppdbSchool" required />
+                </label>
+                <label>
+                  Kelas Tujuan
+                  <select id="ppdbTargetClass" required>
+                    <option value="">Pilih</option>
+                    <option>X</option>
+                    <option>XI</option>
+                    <option>XII</option>
+                  </select>
+                </label>
+                <label>
+                  Tahun Ajaran
+                  <input type="text" id="ppdbYear" placeholder="2026/2027" required />
+                </label>
+              </div>
+              <div class="form-grid-two">
+                <label>
+                  Upload Akta Kelahiran
+                  <input type="file" id="ppdbBirthCert" accept="image/*,application/pdf" />
+                </label>
+                <label>
+                  Upload Kartu Keluarga
+                  <input type="file" id="ppdbFamilyCard" accept="image/*,application/pdf" />
+                </label>
+                <label>
+                  Upload Pas Foto
+                  <input type="file" id="ppdbPhoto" accept="image/*" />
+                </label>
+                <label>
+                  Upload Surat Kelulusan
+                  <input type="file" id="ppdbGraduationDoc" accept="image/*,application/pdf" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="button button-primary">Simpan</button>
+                <button type="button" class="button button-secondary" id="resetPpdb">Reset</button>
+                <button type="button" class="button button-muted" id="printRegistration">Cetak Bukti Pendaftaran</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card table-card">
+            <div class="section-title">Daftar Pendaftar</div>
+            <div class="table-actions">
+              <input type="text" id="searchApplicant" placeholder="Cari pendaftar..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nomor</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="applicantTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="data-siswa">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Data Siswa</span>
+              <h3>Kelola data siswa dan informasi akademik</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-primary" id="addStudentBtn">Tambah Siswa</button>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchStudent" placeholder="Cari siswa..." />
+              <div class="export-group">
+                <button class="button button-muted" id="exportStudentCsv">Export Excel</button>
+                <button class="button button-muted" id="exportStudentPdf">Export PDF</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>NIS</th>
+                    <th>NISN</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Jurusan</th>
+                    <th>HP</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="data-guru">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Data Guru</span>
+              <h3>Kelola guru dan mata pelajaran yang diasuh</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-primary" id="addTeacherBtn">Tambah Guru</button>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchTeacher" placeholder="Cari guru..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>NIP</th>
+                    <th>Nama Guru</th>
+                    <th>Mata Pelajaran</th>
+                    <th>Email</th>
+                    <th>HP</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="teacherTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="data-kelas">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Kelas</span>
+              <h3>Atur kelas, wali, dan kapasitas</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-primary" id="addClassBtn">Tambah Kelas</button>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchClass" placeholder="Cari kelas..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Kode Kelas</th>
+                    <th>Nama Kelas</th>
+                    <th>Wali Kelas</th>
+                    <th>Kapasitas</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="classTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="data-mapel">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Mata Pelajaran</span>
+              <h3>Kelola data Mata Pelajaran dan KKM</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-primary" id="addSubjectBtn">Tambah Mapel</button>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchSubject" placeholder="Cari mata pelajaran..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Kode Mapel</th>
+                    <th>Nama Mapel</th>
+                    <th>KKM</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="subjectTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="input-nilai">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Input Nilai</span>
+              <h3>Input nilai siswa otomatis</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <form id="scoreForm">
+              <div class="form-grid-two">
+                <label>
+                  Pilih Siswa
+                  <select id="scoreStudent" required></select>
+                </label>
+                <label>
+                  Pilih Mata Pelajaran
+                  <select id="scoreSubject" required></select>
+                </label>
+                <label>
+                  Pilih Kelas
+                  <select id="scoreClass" required></select>
+                </label>
+                <label>
+                  Semester
+                  <select id="scoreSemester" required>
+                    <option value="">Pilih</option>
+                    <option>1</option>
+                    <option>2</option>
+                  </select>
+                </label>
+                <label>
+                  Tahun Ajaran
+                  <input type="text" id="scoreYear" placeholder="2026/2027" required />
+                </label>
+                <label>
+                  Tugas
+                  <input type="number" id="scoreTask" min="0" max="100" required />
+                </label>
+                <label>
+                  UTS
+                  <input type="number" id="scoreUts" min="0" max="100" required />
+                </label>
+                <label>
+                  UAS
+                  <input type="number" id="scoreUas" min="0" max="100" required />
+                </label>
+              </div>
+              <div class="score-result">
+                <div>Nilai Akhir: <span id="finalScore">0</span></div>
+                <div>Kategori: <span id="scoreCategory">-</span></div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="button button-primary">Simpan Nilai</button>
+                <button type="button" class="button button-secondary" id="resetScore">Reset</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="page hidden" id="data-nilai">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Data Nilai</span>
+              <h3>Rekap nilai siswa per mata pelajaran</h3>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchScore" placeholder="Cari nilai..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Siswa</th>
+                    <th>Mata Pelajaran</th>
+                    <th>Kelas</th>
+                    <th>Semester</th>
+                    <th>Tahun</th>
+                    <th>Tugas</th>
+                    <th>UTS</th>
+                    <th>UAS</th>
+                    <th>Final</th>
+                    <th>Kategori</th>
+                  </tr>
+                </thead>
+                <tbody id="scoresTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="rapor">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Rapor</span>
+              <h3>Generate dan cetak rapor siswa</h3>
+            </div>
+          </div>
+          <div class="card report-card" id="reportCard">
+            <div class="report-header">
+              <div>
+                <h4>Rapor Siswa</h4>
+                <p id="reportStudentInfo">Pilih data siswa dan cetak rapor.</p>
+              </div>
+              <div class="report-actions">
+                <button class="button button-muted" id="printReport">Print</button>
+              </div>
+            </div>
+            <div class="report-body" id="reportContent">
+              <div class="report-logo">LOGO SEKOLAH</div>
+              <div class="report-meta">
+                <div><strong>Sekolah:</strong> SMK Modern</div>
+                <div><strong>Kelas:</strong> -</div>
+                <div><strong>Tahun:</strong> -</div>
+              </div>
+              <div class="report-table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Mata Pelajaran</th>
+                      <th>Tugas</th>
+                      <th>UTS</th>
+                      <th>UAS</th>
+                      <th>Final</th>
+                      <th>Kategori</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reportScores"></tbody>
+                </table>
+              </div>
+              <div class="report-summary">
+                <div>Nilai Rata-rata: <span id="reportAverage">0</span></div>
+                <div>Ranking: <span id="reportRank">-</span></div>
+              </div>
+              <div class="report-signature">
+                <div>
+                  <p>Kepala Sekolah</p>
+                  <div class="signature-box">Nama Kepala Sekolah</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="absensi">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Absensi</span>
+              <h3>Kelola kehadiran harian dan laporan</h3>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="date" id="attendanceDate" />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama Siswa</th>
+                    <th>Kelas</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="keuangan">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Modul Keuangan</span>
+              <h3>Kelola pembayaran SPP dan riwayat transaksi</h3>
+            </div>
+            <div class="section-action">
+              <button class="button button-primary" id="addPaymentBtn">Tambah Pembayaran</button>
+            </div>
+          </div>
+          <div class="card table-card">
+            <div class="table-actions">
+              <input type="text" id="searchPayment" placeholder="Cari pembayaran..." />
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nomor Pembayaran</th>
+                    <th>Nama Siswa</th>
+                    <th>Bulan</th>
+                    <th>Nominal</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="paymentTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="laporan-penerimaan">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Laporan Penerimaan</span>
+              <h3>Filter dan ekspor laporan PPDB</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <div class="form-grid-three">
+              <label>Tanggal<input type="date" id="reportDate" /></label>
+              <label>Bulan<select id="reportMonth"><option value="">Semua</option><option value="1">Januari</option><option value="2">Februari</option><option value="3">Maret</option></select></label>
+              <label>Tahun<input type="number" id="reportYear" placeholder="2026" /></label>
+            </div>
+            <div class="form-actions">
+              <button class="button button-primary" id="exportPenerimaanPdf">Export PDF</button>
+              <button class="button button-secondary" id="exportPenerimaanExcel">Export Excel</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="laporan-nilai">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Laporan Nilai</span>
+              <h3>Filter nilai untuk cetak Excel / PDF</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <div class="form-grid-three">
+              <label>Kelas<select id="reportClass"><option value="">Semua</option></select></label>
+              <label>Semester<select id="reportSem"><option value="">Semua</option><option>1</option><option>2</option></select></label>
+              <label>Tahun Ajaran<input type="text" id="reportYearScore" placeholder="2026/2027" /></label>
+            </div>
+            <div class="form-actions">
+              <button class="button button-primary" id="exportNilaiPdf">Export PDF</button>
+              <button class="button button-secondary" id="exportNilaiExcel">Export Excel</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="laporan-siswa">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Laporan Siswa</span>
+              <h3>Cetak laporan siswa lengkap</h3>
+            </div>
+          </div>
+          <div class="card report-summary-card">
+            <div>Total Data Siswa: <strong id="totalSiswaReport">0</strong></div>
+            <div class="form-actions">
+              <button class="button button-primary" id="exportSiswaPdf">Export PDF</button>
+              <button class="button button-secondary" id="exportSiswaExcel">Export Excel</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="laporan-guru">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Laporan Guru</span>
+              <h3>Cetak data guru lengkap</h3>
+            </div>
+          </div>
+          <div class="card report-summary-card">
+            <div>Total Data Guru: <strong id="totalGuruReport">0</strong></div>
+            <div class="form-actions">
+              <button class="button button-primary" id="exportGuruPdf">Export PDF</button>
+              <button class="button button-secondary" id="exportGuruExcel">Export Excel</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="profil">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Profil Sekolah</span>
+              <h3>Informasi dasar sekolah</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <label>
+              Nama Sekolah
+              <input type="text" id="schoolName" value="SMK Modern" />
+            </label>
+            <label>
+              Alamat Sekolah
+              <textarea id="schoolAddress">Jl. Pendidikan No. 10, Kota</textarea>
+            </label>
+            <label>
+              Kepala Sekolah
+              <input type="text" id="schoolPrincipal" value="Bapak/Ibu Kepala" />
+            </label>
+            <div class="form-actions">
+              <button class="button button-primary" id="saveProfile">Simpan Profil</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="logo">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Logo Sekolah</span>
+              <h3>Unggah logo resmi sekolah</h3>
+            </div>
+          </div>
+          <div class="card form-card">
+            <label>
+              Upload Logo
+              <input type="file" id="schoolLogo" accept="image/*" />
+            </label>
+            <div class="logo-preview" id="logoPreview">Logo saat ini: SMK Modern</div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="user-management">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">User Management</span>
+              <h3>Kelola hak akses dan akun pengguna</h3>
+            </div>
+          </div>
+          <div class="card report-summary-card">
+            <div>Akses Admin: penuh</div>
+            <div>Akses Operator: PPDB, Data Siswa, Laporan</div>
+            <div>Akses Guru: Input Nilai, Absensi, Rapor</div>
+            <div>Akses Kepala Sekolah: Dashboard dan Laporan</div>
+          </div>
+        </section>
+
+        <section class="page hidden" id="backup">
+          <div class="section-header">
+            <div>
+              <span class="subtitle">Backup Database</span>
+              <h3>Cadangkan data sekolah secara cepat</h3>
+            </div>
+          </div>
+          <div class="card report-summary-card">
+            <p>Backup ini akan menyimpan data siswa, guru, nilai, absensi, pembayaran, dan laporan.</p>
+            <div class="form-actions">
+              <button class="button button-primary" id="backupData">Backup Sekarang</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal hidden" id="modalForm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle">Form</h3>
+          <button class="modal-close" id="closeModal">×</button>
+        </div>
+        <form id="modalEntityForm"></form>
+      </div>
+    </div>
+
+    <script src="assets/js/app.js"></script>
+  </body>
+</html>
