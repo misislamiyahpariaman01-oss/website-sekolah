@@ -501,6 +501,40 @@ tbody tr:hover {
   overflow: hidden;
 }
 
+/* Animations and subtle transitions */
+.animate-in {
+  animation: fadeUp 320ms cubic-bezier(.2,.9,.2,1) both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+.card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(15,23,42,0.08); }
+
+.action-card { transition: transform 260ms ease, box-shadow 260ms ease; }
+.action-card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 20px 48px rgba(15,23,42,0.06); }
+
+.button { transition: transform 120ms ease, background 160ms ease, box-shadow 120ms ease; }
+.button:active { transform: translateY(1px) scale(0.997); }
+
+.modal { transition: opacity 200ms ease; }
+.modal-content { transform: translateY(-12px); opacity: 0; transition: transform 240ms ease, opacity 240ms ease; }
+.modal:not(.hidden) .modal-content { transform: translateY(0); opacity: 1; }
+
+.login-panel { transform: translateY(-6px); opacity: 0; transition: transform 240ms ease, opacity 240ms ease; }
+.login-overlay:not(.hidden) .login-panel { transform: translateY(0); opacity: 1; }
+
+.menu-item { transition: background 200ms ease, color 200ms ease, transform 160ms ease; }
+.menu-item:hover { transform: translateX(3px); }
+
+/* Smooth sidebar open/close */
+.sidebar { transition: transform 220ms ease, box-shadow 220ms ease; }
+
 .modal-header {
   display: flex;
   justify-content: space-between;

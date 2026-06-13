@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aplikasi Sekolah - Test Index</title>
+    <link rel="stylesheet" href="/assets/css/style.css" />
+    <!-- stub Chart and jspdf to avoid jsdom canvas errors -->
+    <script>
+      window.Chart = function() {
+        return { destroy() {} };
+      };
+      window.jspdf = { jsPDF: function() { return { text: function(){}, save: function(){} } } };
+    </script>
+  </head>
+  <body>
+<!-- include main html body from original index.html -->
+</body>
+<script src="/assets/js/app.js"></script>
+</html>

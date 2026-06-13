@@ -268,7 +268,12 @@ async function reloadDataFromApi() {
 function setActivePage(pageKey) {
   elements.pages.forEach((page) => page.classList.add('hidden'));
   const pageElement = document.getElementById(pageKey);
-  if (pageElement) pageElement.classList.remove('hidden');
+  if (pageElement) {
+    pageElement.classList.remove('hidden');
+    // add entry animation class then remove after animation finishes
+    pageElement.classList.add('animate-in');
+    setTimeout(() => pageElement.classList.remove('animate-in'), 420);
+  }
   elements.menuItems.forEach((item) => item.classList.toggle('active', item.dataset.page === pageKey));
   elements.pageTitle.textContent = pageMap[pageKey] || 'Dashboard';
   if (pageKey === 'dashboard') {
@@ -439,9 +444,9 @@ function bindEvents() {
     });
   });
 
-  elements.menuToggle.addEventListener('click', () => elements.sidebar.classList.toggle('open'));
+  if (elements.menuToggle) elements.menuToggle.addEventListener('click', () => elements.sidebar.classList.toggle('open'));
 
-  elements.loginForm.addEventListener('submit', async (event) => {
+  if (elements.loginForm) elements.loginForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     try {
       const email = elements.loginEmail.value.trim();
@@ -460,21 +465,20 @@ function bindEvents() {
     }
   });
 
-  elements.logoutButton.addEventListener('click', () => {
+  if (elements.logoutButton) elements.logoutButton.addEventListener('click', () => {
     clearAuth();
     requireLogin();
   });
-
-  elements.userRole.addEventListener('change', (event) => {
+  if (elements.userRole) elements.userRole.addEventListener('change', (event) => {
     state.role = event.target.value;
     applyRole();
   });
 
-  elements.refreshDashboard.addEventListener('click', updateDashboard);
+  if (elements.refreshDashboard) elements.refreshDashboard.addEventListener('click', updateDashboard);
 
   elements.actionCards.forEach((card) => card.addEventListener('click', () => setActivePage(card.dataset.page)));
 
-  elements.ppdbForm.addEventListener('submit', (event) => {
+  if (elements.ppdbForm) elements.ppdbForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const newApplicant = {
       id: helpers.randomId('a'),
@@ -502,33 +506,35 @@ function bindEvents() {
     }
   });
 
-  document.getElementById('resetPpdb').addEventListener('click', () => {
+  const resetPpdbBtn = document.getElementById('resetPpdb');
+  if (resetPpdbBtn) resetPpdbBtn.addEventListener('click', () => {
     elements.ppdbForm.reset();
     generateRegistrationNumber();
   });
 
-  document.getElementById('printRegistration').addEventListener('click', () => {
+  const printRegBtn = document.getElementById('printRegistration');
+  if (printRegBtn) printRegBtn.addEventListener('click', () => {
     window.print();
   });
 
-  elements.searchApplicant.addEventListener('input', (event) => renderApplicants(event.target.value));
-  elements.searchStudent.addEventListener('input', (event) => renderStudents(event.target.value));
-  elements.searchTeacher.addEventListener('input', (event) => renderTeachers(event.target.value));
-  elements.searchClass.addEventListener('input', (event) => renderClasses(event.target.value));
-  elements.searchSubject.addEventListener('input', (event) => renderSubjects(event.target.value));
-  elements.searchScore.addEventListener('input', (event) => renderScores(event.target.value));
-  elements.searchPayment.addEventListener('input', (event) => renderPayments(event.target.value));
+  if (elements.searchApplicant) elements.searchApplicant.addEventListener('input', (event) => renderApplicants(event.target.value));
+  if (elements.searchStudent) elements.searchStudent.addEventListener('input', (event) => renderStudents(event.target.value));
+  if (elements.searchTeacher) elements.searchTeacher.addEventListener('input', (event) => renderTeachers(event.target.value));
+  if (elements.searchClass) elements.searchClass.addEventListener('input', (event) => renderClasses(event.target.value));
+  if (elements.searchSubject) elements.searchSubject.addEventListener('input', (event) => renderSubjects(event.target.value));
+  if (elements.searchScore) elements.searchScore.addEventListener('input', (event) => renderScores(event.target.value));
+  if (elements.searchPayment) elements.searchPayment.addEventListener('input', (event) => renderPayments(event.target.value));
 
-  elements.addStudentBtn.addEventListener('click', () => openModal('student'));
-  elements.addTeacherBtn.addEventListener('click', () => openModal('teacher'));
-  elements.addClassBtn.addEventListener('click', () => openModal('class'));
-  elements.addSubjectBtn.addEventListener('click', () => openModal('subject'));
+  if (elements.addStudentBtn) elements.addStudentBtn.addEventListener('click', () => openModal('student'));
+  if (elements.addTeacherBtn) elements.addTeacherBtn.addEventListener('click', () => openModal('teacher'));
+  if (elements.addClassBtn) elements.addClassBtn.addEventListener('click', () => openModal('class'));
+  if (elements.addSubjectBtn) elements.addSubjectBtn.addEventListener('click', () => openModal('subject'));
 
-  elements.scoreTask.addEventListener('input', updateFinalScore);
-  elements.scoreUts.addEventListener('input', updateFinalScore);
-  elements.scoreUas.addEventListener('input', updateFinalScore);
+  if (elements.scoreTask) elements.scoreTask.addEventListener('input', updateFinalScore);
+  if (elements.scoreUts) elements.scoreUts.addEventListener('input', updateFinalScore);
+  if (elements.scoreUas) elements.scoreUas.addEventListener('input', updateFinalScore);
 
-  elements.scoreForm.addEventListener('submit', (event) => {
+  if (elements.scoreForm) elements.scoreForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const final = updateFinalScore();
     const entry = {
@@ -553,9 +559,9 @@ function bindEvents() {
     elements.scoreCategory.textContent = '-';
   });
 
-  elements.printReport.addEventListener('click', () => window.print());
+  if (elements.printReport) elements.printReport.addEventListener('click', () => window.print());
 
-  elements.attendanceDate.addEventListener('change', (event) => renderAttendance(event.target.value));
+  if (elements.attendanceDate) elements.attendanceDate.addEventListener('change', (event) => renderAttendance(event.target.value));
 
   document.body.addEventListener('change', (event) => {
     if (event.target.matches('.attendance-status')) {
@@ -573,36 +579,59 @@ function bindEvents() {
   document.body.addEventListener('click', (event) => {
     if (event.target.matches('button[data-action="delete-applicant"]')) {
       const id = event.target.dataset.id;
-      state.applicants = state.applicants.filter((item) => item.id !== id);
-      renderApplicants(elements.searchApplicant.value);
-      updateDashboard();
+      (async () => {
+        try {
+          await apiRequest(`/pendaftaran/${id}`, 'DELETE');
+        } catch (err) {
+          // ignore, fallback to local
+        }
+        state.applicants = state.applicants.filter((item) => item.id !== id);
+        renderApplicants(elements.searchApplicant?.value || '');
+        updateDashboard();
+      })();
     }
     if (event.target.matches('button[data-action="delete-student"]')) {
       const id = event.target.dataset.id;
-      state.students = state.students.filter((item) => item.id !== id);
-      renderStudents(elements.searchStudent.value);
-      refreshSelectOptions();
-      updateDashboard();
+      (async () => {
+        try {
+          await apiRequest(`/siswa/${id}`, 'DELETE');
+        } catch (err) {
+          // fallback to local
+        }
+        state.students = state.students.filter((item) => item.id !== id);
+        renderStudents(elements.searchStudent?.value || '');
+        refreshSelectOptions();
+        updateDashboard();
+      })();
     }
     if (event.target.matches('button[data-action="delete-teacher"]')) {
       const id = event.target.dataset.id;
-      state.teachers = state.teachers.filter((item) => item.id !== id);
-      renderTeachers(elements.searchTeacher.value);
-      updateDashboard();
+      (async () => {
+        try { await apiRequest(`/guru/${id}`, 'DELETE'); } catch (err) {}
+        state.teachers = state.teachers.filter((item) => item.id !== id);
+        renderTeachers(elements.searchTeacher?.value || '');
+        updateDashboard();
+      })();
     }
     if (event.target.matches('button[data-action="delete-class"]')) {
       const id = event.target.dataset.id;
-      state.classes = state.classes.filter((item) => item.id !== id);
-      renderClasses(elements.searchClass.value);
-      refreshSelectOptions();
-      updateDashboard();
+      (async () => {
+        try { await apiRequest(`/kelas/${id}`, 'DELETE'); } catch (err) {}
+        state.classes = state.classes.filter((item) => item.id !== id);
+        renderClasses(elements.searchClass?.value || '');
+        refreshSelectOptions();
+        updateDashboard();
+      })();
     }
     if (event.target.matches('button[data-action="delete-subject"]')) {
       const id = event.target.dataset.id;
-      state.subjects = state.subjects.filter((item) => item.id !== id);
-      renderSubjects(elements.searchSubject.value);
-      refreshSelectOptions();
-      updateDashboard();
+      (async () => {
+        try { await apiRequest(`/mapel/${id}`, 'DELETE'); } catch (err) {}
+        state.subjects = state.subjects.filter((item) => item.id !== id);
+        renderSubjects(elements.searchSubject?.value || '');
+        refreshSelectOptions();
+        updateDashboard();
+      })();
     }
     if (event.target.matches('button[data-action="receipt"]')) {
       const id = event.target.dataset.id;
@@ -713,55 +742,49 @@ function openModal(type) {
   modalForm.onsubmit = (event) => {
     event.preventDefault();
     const formData = new FormData(modalForm);
-    if (type === 'student') {
-      state.students.push({
-        id: helpers.randomId('s'),
-        nis: formData.get('nis'),
-        nisn: formData.get('nisn'),
-        name: formData.get('name'),
-        kelas: formData.get('kelas'),
-        jurusan: formData.get('jurusan'),
-        address: formData.get('address'),
-        phone: formData.get('phone'),
-        status: formData.get('status'),
-      });
-    }
-    if (type === 'teacher') {
-      state.teachers.push({
-        id: helpers.randomId('t'),
-        nip: formData.get('nip'),
-        name: formData.get('name'),
-        subject: formData.get('subject'),
-        email: formData.get('email'),
-        phone: formData.get('phone'),
-        status: formData.get('status'),
-      });
-    }
-    if (type === 'class') {
-      state.classes.push({
-        id: helpers.randomId('c'),
-        code: formData.get('code'),
-        name: formData.get('name'),
-        wali: formData.get('wali'),
-        capacity: Number(formData.get('capacity')),
-      });
-    }
-    if (type === 'subject') {
-      state.subjects.push({
-        id: helpers.randomId('m'),
-        code: formData.get('code'),
-        name: formData.get('name'),
-        kkm: Number(formData.get('kkm')),
-      });
-    }
+    (async () => {
+      try {
+        if (type === 'student') {
+          const payload = { nis: formData.get('nis'), nisn: formData.get('nisn'), nama: formData.get('name'), kelas: formData.get('kelas'), jurusan: formData.get('jurusan'), alamat: formData.get('address'), nomor_hp: formData.get('phone'), status: formData.get('status') };
+          const created = await apiRequest('/siswa', 'POST', payload).catch(() => null);
+          if (created && created.id) {
+            state.students.push({ id: created.id, nis: created.nis || payload.nis, nisn: created.nisn || payload.nisn, name: created.nama || payload.nama, kelas: created.kelas?.nama_kelas || payload.kelas, jurusan: created.jurusan || payload.jurusan, address: created.alamat || payload.alamat, phone: created.nomor_hp || payload.nomor_hp, status: created.status || payload.status });
+          } else {
+            state.students.push({ id: helpers.randomId('s'), nis: payload.nis, nisn: payload.nisn, name: payload.nama, kelas: payload.kelas, jurusan: payload.jurusan, address: payload.alamat, phone: payload.nomor_hp, status: payload.status });
+          }
+        }
+        if (type === 'teacher') {
+          const payload = { nip: formData.get('nip'), nama: formData.get('name'), mata_pelajaran: formData.get('subject'), email: formData.get('email'), phone: formData.get('phone'), status: formData.get('status') };
+          const created = await apiRequest('/guru', 'POST', payload).catch(() => null);
+          if (created && created.id) state.teachers.push({ id: created.id, nip: created.nip || payload.nip, name: created.nama || payload.nama, subject: created.mata_pelajaran || payload.mata_pelajaran, email: created.email || payload.email, phone: created.phone || payload.phone, status: created.status || payload.status });
+          else state.teachers.push({ id: helpers.randomId('t'), nip: payload.nip, name: payload.nama, subject: payload.mata_pelajaran, email: payload.email, phone: payload.phone, status: payload.status });
+        }
+        if (type === 'class') {
+          const payload = { kode_kelas: formData.get('code'), nama_kelas: formData.get('name'), wali_kelas: formData.get('wali'), kapasitas: Number(formData.get('capacity')) };
+          const created = await apiRequest('/kelas', 'POST', payload).catch(() => null);
+          if (created && created.id) state.classes.push({ id: created.id, code: created.kode_kelas || payload.kode_kelas, name: created.nama_kelas || payload.nama_kelas, wali: created.wali_kelas || payload.wali_kelas, capacity: created.kapasitas || payload.kapasitas });
+          else state.classes.push({ id: helpers.randomId('c'), code: payload.kode_kelas, name: payload.nama_kelas, wali: payload.wali_kelas || payload.wali, capacity: payload.kapasitas });
+        }
+        if (type === 'subject') {
+          const payload = { kode_mapel: formData.get('code'), nama_mapel: formData.get('name'), kkm: Number(formData.get('kkm')) };
+          const created = await apiRequest('/mapel', 'POST', payload).catch(() => null);
+          if (created && created.id) state.subjects.push({ id: created.id, code: created.kode_mapel || payload.kode_mapel, name: created.nama_mapel || payload.nama_mapel, kkm: created.kkm || payload.kkm });
+          else state.subjects.push({ id: helpers.randomId('m'), code: payload.kode_mapel, name: payload.nama_mapel || payload.name, kkm: payload.kkm });
+        }
 
-    refreshSelectOptions();
-    renderStudents();
-    renderTeachers();
-    renderClasses();
-    renderSubjects();
-    updateDashboard();
-    closeModal();
+        refreshSelectOptions();
+        renderStudents();
+        renderTeachers();
+        renderClasses();
+        renderSubjects();
+        updateDashboard();
+        closeModal();
+      } catch (err) {
+        console.error('Gagal menyimpan entitas ke API:', err);
+        alert('Gagal menyimpan ke server. Perubahan disimpan secara lokal.');
+        closeModal();
+      }
+    })();
   };
 }
 
